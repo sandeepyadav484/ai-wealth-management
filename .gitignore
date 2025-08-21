@@ -116,4 +116,4 @@ echo "3. git push origin main"
 echo "4. Deploy via Streamlit Cloud: https://share.streamlit.io"
 EOF
 
-chmod +x deploy.sh
+chmod +x deploy.sh.streamlit/secrets.toml
