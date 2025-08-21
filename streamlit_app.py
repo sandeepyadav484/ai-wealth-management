@@ -11,11 +11,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize AI client
+# Initialize AI client with error handling
 def get_ai_client():
-    claude_api_key = st.secrets.get("CLAUDE_API_KEY", "demo-key")
-    if claude_api_key != "demo-key":
-        return Anthropic(api_key=claude_api_key)
+    try:
+        claude_api_key = st.secrets.get("CLAUDE_API_KEY", "demo-key")
+        if claude_api_key and claude_api_key != "demo-key" and claude_api_key.startswith("sk-ant-"):
+            return Anthropic(api_key=claude_api_key)
+    except Exception as e:
+        st.error(f"Failed to initialize AI client: {str(e)}")
     return None
 
 def get_ai_response(prompt, client):
