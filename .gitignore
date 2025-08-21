@@ -1,0 +1,119 @@
+# Create .gitignore file
+cat > .gitignore << 'EOF'
+# Streamlit secrets (keep private)
+.streamlit/secrets.toml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+EOF
+
+# Create README for GitHub
+cat > README.md << 'EOF'
+# 🧠 AI Wealth Management System
+
+**Live Demo:** [sandeepyadav.co.in/wealth-management-agent](https://sandeepyadav.co.in/wealth-management-agent)
+
+## 🌟 Features
+
+- **AI-Powered Financial Analysis** with sophisticated reasoning
+- **Indian Market Focus** - NSE/BSE stocks, Indian mutual funds
+- **Interactive Portfolio Planning** with risk assessment
+- **Tax Optimization** strategies for Indian investors
+- **Real-time Market Dashboard** with live charts
+- **Goal-based SIP Planning** with projections
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Streamlit with custom CSS
+- **AI Engine:** Claude-3 Sonnet (configurable)
+- **Data:** Yahoo Finance API + Enhanced analytics
+- **Deployment:** Streamlit Cloud + Custom Domain
+- **Architecture:** Multi-agent system
+
+## 🚀 Live Features
+
+### 🤖 AI Assistant
+- Stock analysis with technical & fundamental insights
+- SIP strategy recommendations  
+- Tax planning guidance
+- Interactive Q&A interface
+
+### 📊 Market Dashboard
+- Live NSE/BSE market data
+- Interactive NIFTY 50 charts
+- Top gainers/losers tracking
+- Sector performance analysis
+
+### 🎯 Portfolio Planner  
+- Risk-based asset allocation
+- Personalized fund recommendations
+- Wealth projection calculators
+- Tax optimization strategies
+
+## 👤 About
+
+**Created by:** Sandeep Yadav  
+**Website:** [sandeepyadav.co.in](https://sandeepyadav.co.in)  
+**Contact:** contact@sandeepyadav.co.in
+
+## ⚠️ Disclaimer
+
+For educational purposes only. Consult SEBI registered advisors for investment decisions.
+
+---
+
+**Built with ❤️ by Sandeep Yadav | Powered by Advanced AI**
+EOF
+
+# Create deployment script
+cat > deploy.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Deploying AI Wealth Management System..."
+
+# Check if git is initialized
+if [ ! -d ".git" ]; then
+    echo "📁 Initializing Git repository..."
+    git init
+fi
+
+# Add all files
+echo "📋 Adding files to Git..."
+git add .
+
+# Commit changes
+echo "💾 Committing changes..."
+git commit -m "Deploy: AI Wealth Management System $(date +%Y-%m-%d)"
+
+echo "✅ Ready for GitHub push!"
+echo ""
+echo "Next steps:"
+echo "1. Create GitHub repo: https://github.com/new"
+echo "2. git remote add origin <your-repo-url>"
+echo "3. git push origin main"
+echo "4. Deploy via Streamlit Cloud: https://share.streamlit.io"
+EOF
+
+chmod +x deploy.sh
