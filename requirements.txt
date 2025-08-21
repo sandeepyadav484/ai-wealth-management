@@ -2,7 +2,7 @@ streamlit==1.32.0
 pandas>=2.1.0
 plotly==5.17.0
 numpy>=1.25.0
-anthropic==0.25.1
+anthropic>=0.28.0
 openai==1.12.0
 yfinance==0.2.18
 requests==2.31.0
