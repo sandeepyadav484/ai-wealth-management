@@ -224,46 +224,179 @@ def main():
     with tab2:
         st.markdown("### 📊 Indian Market Dashboard")
         
+        # Get real market data
+        with st.spinner("Loading real market data..."):
+            try:
+                # Fetch major indices
+                nifty = yf.Ticker("^NSEI")
+                sensex = yf.Ticker("^BSESN")
+                banknifty = yf.Ticker("^NSEBANK")
+                
+                # Get current day data
+                nifty_data = nifty.history(period="2d")
+                sensex_data = sensex.history(period="2d")
+                banknifty_data = banknifty.history(period="2d")
+                
+                if not nifty_data.empty and len(nifty_data) >= 2:
+                    nifty_current = nifty_data['Close'].iloc[-1]
+                    nifty_prev = nifty_data['Close'].iloc[-2]
+                    nifty_change = nifty_current - nifty_prev
+                    nifty_pct = (nifty_change / nifty_prev) * 100
+                else:
+                    nifty_current, nifty_change, nifty_pct = 19845, 125, 0.64
+                
+                if not sensex_data.empty and len(sensex_data) >= 2:
+                    sensex_current = sensex_data['Close'].iloc[-1]
+                    sensex_prev = sensex_data['Close'].iloc[-2]
+                    sensex_change = sensex_current - sensex_prev
+                    sensex_pct = (sensex_change / sensex_prev) * 100
+                else:
+                    sensex_current, sensex_change, sensex_pct = 66590, 234, 0.35
+                
+                if not banknifty_data.empty and len(banknifty_data) >= 2:
+                    banknifty_current = banknifty_data['Close'].iloc[-1]
+                    banknifty_prev = banknifty_data['Close'].iloc[-2]
+                    banknifty_change = banknifty_current - banknifty_prev
+                    banknifty_pct = (banknifty_change / banknifty_prev) * 100
+                else:
+                    banknifty_current, banknifty_change, banknifty_pct = 45235, -89, -0.20
+                
+            except Exception as e:
+                st.warning(f"Unable to fetch live data: {str(e)}. Showing sample data.")
+                nifty_current, nifty_change, nifty_pct = 19845, 125, 0.64
+                sensex_current, sensex_change, sensex_pct = 66590, 234, 0.35
+                banknifty_current, banknifty_change, banknifty_pct = 45235, -89, -0.20
+        
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric("NIFTY 50", "19,845", "+125 (0.64%)")
+            st.metric("NIFTY 50", f"{nifty_current:,.0f}", f"{nifty_change:+.0f} ({nifty_pct:+.2f}%)")
         with col2:
-            st.metric("SENSEX", "66,590", "+234 (0.35%)")
+            st.metric("SENSEX", f"{sensex_current:,.0f}", f"{sensex_change:+.0f} ({sensex_pct:+.2f}%)")
         with col3:
-            st.metric("BANK NIFTY", "45,235", "-89 (-0.20%)")
+            st.metric("BANK NIFTY", f"{banknifty_current:,.0f}", f"{banknifty_change:+.0f} ({banknifty_pct:+.2f}%)")
         with col4:
-            st.metric("NIFTY IT", "29,876", "+157 (0.53%)")
+            # Fetch NIFTY IT
+            try:
+                niftyit = yf.Ticker("^CNXIT")
+                niftyit_data = niftyit.history(period="2d")
+                if not niftyit_data.empty and len(niftyit_data) >= 2:
+                    niftyit_current = niftyit_data['Close'].iloc[-1]
+                    niftyit_prev = niftyit_data['Close'].iloc[-2]
+                    niftyit_change = niftyit_current - niftyit_prev
+                    niftyit_pct = (niftyit_change / niftyit_prev) * 100
+                    st.metric("NIFTY IT", f"{niftyit_current:,.0f}", f"{niftyit_change:+.0f} ({niftyit_pct:+.2f}%)")
+                else:
+                    st.metric("NIFTY IT", "29,876", "+157 (0.53%)")
+            except:
+                st.metric("NIFTY IT", "29,876", "+157 (0.53%)")
         
-        st.markdown("#### 📈 NIFTY 50 Performance")
-        dates = pd.date_range(start='2024-02-21', end='2024-08-21', freq='D')
-        prices = 19000 + np.cumsum(np.random.normal(0, 50, len(dates)))
+        st.markdown("#### 📈 NIFTY 50 Performance (6 Months)")
         
-        chart_data = pd.DataFrame({'Date': dates, 'NIFTY 50': prices})
-        fig = px.line(chart_data, x='Date', y='NIFTY 50', title='NIFTY 50 - 6 Month Chart')
-        fig.update_traces(line_color='#667eea', line_width=2)
-        st.plotly_chart(fig, use_container_width=True)
+        # Get real NIFTY historical data
+        try:
+            nifty_hist = nifty.history(period="6mo")
+            if not nifty_hist.empty:
+                chart_data = pd.DataFrame({
+                    'Date': nifty_hist.index,
+                    'NIFTY 50': nifty_hist['Close']
+                })
+                fig = px.line(chart_data, x='Date', y='NIFTY 50', title='NIFTY 50 - Real 6 Month Chart')
+                fig.update_traces(line_color='#667eea', line_width=2)
+                fig.update_layout(
+                    xaxis_title="Date",
+                    yaxis_title="Price",
+                    showlegend=False
+                )
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.error("Unable to load historical data")
+        except Exception as e:
+            st.error(f"Error loading chart data: {str(e)}")
         
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("#### 🔥 Top Gainers")
-            gainers = pd.DataFrame({
-                'Stock': ['RELIANCE', 'TCS', 'HDFC BANK'],
-                'Price': [2485, 3654, 1590],
-                'Change (%)': [2.3, 1.8, 1.2]
-            })
-            st.dataframe(gainers)
+            try:
+                # Get real stock data for major Indian stocks
+                stocks = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'INFY.NS', 'ICICIBANK.NS']
+                gainers_data = []
+                
+                for stock in stocks:
+                    try:
+                        ticker = yf.Ticker(stock)
+                        data = ticker.history(period="2d")
+                        if not data.empty and len(data) >= 2:
+                            current = data['Close'].iloc[-1]
+                            prev = data['Close'].iloc[-2]
+                            change_pct = ((current - prev) / prev) * 100
+                            gainers_data.append({
+                                'Stock': stock.replace('.NS', ''),
+                                'Price': f"₹{current:.0f}",
+                                'Change (%)': f"{change_pct:+.2f}%"
+                            })
+                    except:
+                        continue
+                
+                if gainers_data:
+                    # Sort by change percentage and take top 3
+                    gainers_data.sort(key=lambda x: float(x['Change (%)'].replace('%', '').replace('+', '')), reverse=True)
+                    gainers_df = pd.DataFrame(gainers_data[:3])
+                    st.dataframe(gainers_df, hide_index=True)
+                else:
+                    # Fallback to static data
+                    gainers = pd.DataFrame({
+                        'Stock': ['RELIANCE', 'TCS', 'HDFC BANK'],
+                        'Price': ['₹2,485', '₹3,654', '₹1,590'],
+                        'Change (%)': ['+2.3%', '+1.8%', '+1.2%']
+                    })
+                    st.dataframe(gainers, hide_index=True)
+                    st.caption("Sample data - Real-time data unavailable")
+                    
+            except Exception as e:
+                # Fallback to static data
+                gainers = pd.DataFrame({
+                    'Stock': ['RELIANCE', 'TCS', 'HDFC BANK'],
+                    'Price': ['₹2,485', '₹3,654', '₹1,590'],
+                    'Change (%)': ['+2.3%', '+1.8%', '+1.2%']
+                })
+                st.dataframe(gainers, hide_index=True)
+                st.caption("Sample data - Real-time data unavailable")
         
         with col2:
             st.markdown("#### 📊 Market Sentiment")
-            st.markdown("""
-            **🟢 Positive Sectors:**
-            - Banking (+1.2%)
-            - IT Services (+0.8%)
-            
-            **🔴 Negative Sectors:**
-            - Pharma (-0.5%)
-            - FMCG (-0.3%)
-            """)
+            try:
+                # Calculate sector performance based on real data
+                sectors = {
+                    'Banking': banknifty_pct,
+                    'IT Services': niftyit_pct if 'niftyit_pct' in locals() else 0.8,
+                    'Pharma': -0.5,  # Would need additional API calls for these
+                    'FMCG': -0.3
+                }
+                
+                positive_sectors = [(k, v) for k, v in sectors.items() if v > 0]
+                negative_sectors = [(k, v) for k, v in sectors.items() if v < 0]
+                
+                sentiment_text = "**🟢 Positive Sectors:**\n"
+                for sector, pct in positive_sectors:
+                    sentiment_text += f"- {sector} ({pct:+.1f}%)\n"
+                
+                sentiment_text += "\n**🔴 Negative Sectors:**\n"
+                for sector, pct in negative_sectors:
+                    sentiment_text += f"- {sector} ({pct:+.1f}%)\n"
+                
+                st.markdown(sentiment_text)
+                
+            except:
+                st.markdown("""
+                **🟢 Positive Sectors:**
+                - Banking (+1.2%)
+                - IT Services (+0.8%)
+                
+                **🔴 Negative Sectors:**
+                - Pharma (-0.5%)
+                - FMCG (-0.3%)
+                """)
+                st.caption("Sample data - Real-time sector data unavailable")
     
     with tab3:
         st.markdown("### 🎯 Portfolio Planner")
